@@ -4,6 +4,11 @@ import model.Categoria;
 import model.Ingresso;
 import model.Jogo;
 
+import com.db4o.Db4oEmbedded;
+import com.db4o.ObjectContainer;
+import com.db4o.config.EmbeddedConfiguration;
+
+
 public class Util {
 
 	private static ObjectContainer manager;
