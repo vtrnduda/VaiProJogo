@@ -8,15 +8,16 @@ import java.util.UUID;
 public class Jogo {
 	
 	private String id;
-    private LocalDateTime dataHora;
+    private String dataHora;
     private String local;
     private List<Ingresso> listaIngressos;
     
     private String timeA;
     private String timeB;
-	
-    public Jogo(LocalDateTime dataHora, String local, String timeA, String timeB) {
-        this.id = UUID.randomUUID().toString();
+    private static int contador = 1;
+
+    public Jogo(String dataHora, String local, String timeA, String timeB) {
+        this.id = String.format("JOGO-%04d", contador++);
         this.dataHora = dataHora;
         this.local = local;
         this.timeA = timeA;
@@ -28,11 +29,11 @@ public class Jogo {
         return id;
     }
     
-    public LocalDateTime getDataHora() {
+    public String getDataHora() {
         return dataHora;
     }
     
-    public void setDataHora(LocalDateTime dataHora) {
+    public void setDataHora(String dataHora) {
         this.dataHora = dataHora;
     }
     
