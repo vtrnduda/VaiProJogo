@@ -4,10 +4,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import appconsole.Util;
 
 public class Jogo {
 	
-	private String id;
+	private int id;
     private String dataHora;
     private String local;
     private List<Ingresso> listaIngressos;
@@ -17,7 +18,7 @@ public class Jogo {
     private static int contador = 1;
 
     public Jogo(String dataHora, String local, String timeA, String timeB) {
-        this.id = String.format("JOGO-%04d", contador++);
+        this.id = Util.getProximoIdJogo();
         this.dataHora = dataHora;
         this.local = local;
         this.timeA = timeA;
@@ -25,7 +26,7 @@ public class Jogo {
         this.listaIngressos = new ArrayList<>();
     }
     
-    public String getId() {
+    public int getId() {
         return id;
     }
     
@@ -76,7 +77,7 @@ public class Jogo {
     @Override
     public String toString() {
         return "Jogo{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", dataHora=" + dataHora +
                 ", local='" + local + '\'' +
                 ", timeA='" + timeA + '\'' +

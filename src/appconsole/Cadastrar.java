@@ -36,6 +36,7 @@ public class Cadastrar {
                 "Flamengo",
                 "Fluminense"
         );
+        manager.store(jogo1);
 
         Jogo jogo2 = new Jogo(
                 "22/10/2025 16:00",
@@ -43,6 +44,7 @@ public class Cadastrar {
                 "Corinthians",
                 "Palmeiras"
         );
+        manager.store(jogo2);
 
         Jogo jogo3 = new Jogo(
                 "05/11/2025 18:30",
@@ -51,9 +53,9 @@ public class Cadastrar {
                 "Atlético-MG"
         );
 
-        manager.store(jogo1);
-        manager.store(jogo2);
         manager.store(jogo3);
+
+        // Salvar jogos
         manager.commit();
 
         // Criar ingressos
