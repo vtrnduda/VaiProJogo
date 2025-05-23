@@ -43,16 +43,16 @@ public class Consultar {
             System.out.println(c);
         }
 
-        System.out.println("\n---listar os ingressos da categoria 3 do jogo JOGO-0001");
+        System.out.println("\n---listar os ingressos da categoria 3 do jogo 1");
         q = manager.query();
         q.constrain(Ingresso.class);
-        q.constrain(new FiltroIngressosCategoriaXJogoY(3, "JOGO-0001"));
+        q.constrain(new FiltroIngressosCategoriaXJogoY(3, 1));
         ingressos = q.execute();
         for(Ingresso i : ingressos) {
             System.out.println(i);
         }
 
-        System.out.println("\n---listar jogos com mais de 50 ingressos vendidos");
+        System.out.println("\n---listar jogos com mais de 2 ingressos vendidos");
         q = manager.query();
         q.constrain(Jogo.class);
         q.constrain(new FiltroJogoMaisXIngressos(2));
@@ -86,21 +86,21 @@ class FiltroCategoriaPrecoMaiorQueX implements Evaluation {
 
     }
 }
-//quais os ingressos da categoria de numero 3 do jogo de id JOGO-0001
+//quais os ingressos da categoria de numero 3 do jogo de id 1
 
 class FiltroIngressosCategoriaXJogoY implements Evaluation {
     private int n;
-    private String s;
-    public FiltroIngressosCategoriaXJogoY(int n, String s) {
+    private int jogoId;
+    public FiltroIngressosCategoriaXJogoY(int n, int jogoId) {
         this.n = n;
-        this.s = s;
+        this.jogoId = jogoId;
     }
 
     public void evaluate(Candidate candidate) {
-        Ingresso ing = (Ingresso) candidate.getObject(); // JOGO-0001
+        Ingresso ing = (Ingresso) candidate.getObject(); // 1
         boolean match = false;
         if (ing.getCategoria() != null && ing.getJogo() != null){
-            match = ing.getCategoria().getNumero() == n && ing.getJogo().getId().equals(s);
+            match = ing.getCategoria().getNumero() == n && ing.getJogo().getId() == jogoId;
         }
 
         candidate.include(match);
