@@ -18,7 +18,7 @@ public class Apagar {
         // localizar inrgesso a partir do codigo dele
         Query q = manager.query();
         q.constrain(Ingresso.class);
-        q.descend("codigo").constrain("FLAFLU750932"); //Inserir Codigo do ingresso
+        q.descend("codigo").constrain("FLAFLU522373"); // Obter codigo a partir da listagem
         List<Ingresso> resultado = q.execute();
         
         if (resultado.isEmpty()) {
@@ -29,6 +29,7 @@ public class Apagar {
         
         Ingresso ingresso = resultado.getFirst();
 
+        // Localiza o jogo relacionado ao ingresso a partir do id do jogo
         Query qj = manager.query();
         qj.constrain(Jogo.class);
         qj.descend("id").constrain(ingresso.getJogo().getId());

@@ -15,16 +15,16 @@ public class Alterar {
 
         Query qi = manager.query();
         qi.constrain(Ingresso.class);
-        qi.descend("codigo").constrain("CRUATL168328");
+        qi.descend("codigo").constrain("CRUATL334102"); // Obter o códgo a partir da listagem
         List<Ingresso> resultados = qi.execute();
 
         Query qc = manager.query();
         qc.constrain(Categoria.class);
-        qc.descend("numero").constrain(3);
+        qc.descend("numero").constrain(2);
         List<Categoria> resultadoCategorias = qc.execute();
 
         if(!resultados.isEmpty()) {
-            System.out.println("Alterando o ingresso para categoria 3");
+            System.out.println("Alterando o ingresso para categoria 2");
             Ingresso i = resultados.getFirst();
 
             System.out.println("Antes da alteracao:" + i );
