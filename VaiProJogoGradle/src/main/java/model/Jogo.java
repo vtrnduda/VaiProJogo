@@ -24,7 +24,8 @@ public class Jogo {
     @Column(name = "time_b", nullable = false)
     private String timeB;
     
-    @OneToMany(mappedBy = "jogo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // Cascade: não delete, mas faça update e merge
+    @OneToMany(mappedBy = "jogo", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<Ingresso> listaIngressos = new ArrayList<>();
     
     public Jogo() {}

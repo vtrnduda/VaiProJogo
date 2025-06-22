@@ -14,11 +14,13 @@ public class Ingresso {
     @Column(nullable = false, unique = true)
     private String codigo;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Cascade: não delete, mas faça update e merge
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Cascade: não delete, mas faça update e merge
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
     
