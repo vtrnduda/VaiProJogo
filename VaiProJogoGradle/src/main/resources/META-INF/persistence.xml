@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0"
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+    
+    <persistence-unit name="hibernate-postgresql">
+        <description>usa provedor Hibernate com postgresql</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <!-- Especificar as classes explicitamente -->
+        <class>model.Categoria</class>
+        <class>model.Jogo</class>
+        <class>model.Ingresso</class>
+        
+     	<exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <shared-cache-mode>NONE</shared-cache-mode>
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" 	value="org.postgresql.Driver" />
+            <property name="jakarta.persistence.jdbc.url"		value="jdbc:postgresql://localhost:5432/vaiprojogo" />
+            <property name="jakarta.persistence.jdbc.user"		value="postgres" />
+            <property name="jakarta.persistence.jdbc.password"	value="teste" />
+            
+               <property name="hibernate.hbm2ddl.auto" 		value="update" />  
+               <property name="hibernate.format_sql" 			value="true" />
+               <property name="hibernate.show_sql" 			value="true" /> 
+        </properties>
+    </persistence-unit>
+    
+    <persistence-unit name="hibernate-mysql">
+        <description>usa provedor Hibernate com mysql</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <!-- Especificar as classes explicitamente -->
+        <class>model.Categoria</class>
+        <class>model.Jogo</class>
+        <class>model.Ingresso</class>
+        
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <shared-cache-mode>NONE</shared-cache-mode>
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver"	value="com.mysql.cj.jdbc.Driver" />
+            <property name="jakarta.persistence.jdbc.url"  		value="jdbc:mysql://localhost:3306/vaiprojogo" />
+            <property name="jakarta.persistence.jdbc.user" 		value="postgres" />
+            <property name="jakarta.persistence.jdbc.password" 	value="teste" />
+
+               <property name="hibernate.hbm2ddl.auto" 	value="update" />  
+               <property name="hibernate.format_sql" 		value="false" />
+               <property name="hibernate.show_sql" 		value="false" /> 
+        </properties>
+    </persistence-unit>
+
+</persistence>
