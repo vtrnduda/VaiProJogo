@@ -4,14 +4,14 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import model.Categoria;
 import model.Ingresso;
-import util.JPAUtil;
+//import util.JPAUtil;
 
 public class Alterar {
 
     private EntityManager manager;
 
     public Alterar() {
-        manager = JPAUtil.conectarBanco();
+//        manager = JPAUtil.conectarBanco();
         String codigoIngresso = "FLAFLU328855";
         int numeroCategoria = 3;
 

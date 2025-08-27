@@ -7,7 +7,7 @@ import jakarta.persistence.Persistence;
 
 import model.Ingresso;
 import model.Jogo;
-import util.JPAUtil;
+//import util.JPAUtil;
 
 
 public class Apagar {
@@ -19,7 +19,7 @@ public class Apagar {
 
             String codigoIngresso = "FLAFLU781118";
 
-            manager = JPAUtil.conectarBanco();
+//            manager = JPAUtil.conectarBanco();
             manager.getTransaction().begin();
 
             Ingresso ingresso = manager.createQuery("SELECT i FROM Ingresso i WHERE i.codigo = :codigo", Ingresso.class)

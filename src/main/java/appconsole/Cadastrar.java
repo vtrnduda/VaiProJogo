@@ -31,7 +31,9 @@ public class Cadastrar {
                     LocalTime.of(16, 0),
                     "Estádio Maracanã",
                     "Flamengo",
-                    "Fluminense"
+                    "Fluminense",
+                    null,
+                    null
             );
 
             Jogo jogo2 = Fachada.cadastrarJogo(
@@ -39,7 +41,9 @@ public class Cadastrar {
                     LocalTime.of(16, 0),
                     "Arena Itaquera",
                     "Corinthians",
-                    "Palmeiras"
+                    "Palmeiras",
+                    null,
+                    null
             );
 
             Jogo jogo3 = Fachada.cadastrarJogo(
@@ -47,7 +51,9 @@ public class Cadastrar {
                     LocalTime.of(18, 30),
                     "Mineirão",
                     "Cruzeiro",
-                    "Atlético-MG"
+                    "Atlético-MG",
+                    null,
+                    null
             );
             System.out.println("Jogos criados com IDs: " + jogo1.getId() + ", " + jogo2.getId() + ", " + jogo3.getId());
 
