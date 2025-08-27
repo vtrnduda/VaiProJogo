@@ -1,107 +1,88 @@
 package appconsole;
 
-import jakarta.persistence.EntityManager;
+import daojpa.DAO;
+import requisito.Fachada;
 import model.Categoria;
-import model.Ingresso;
 import model.Jogo;
-import util.JPAUtil;
+import model.Ingresso;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Cadastrar {
-    private EntityManager manager;
 
     public Cadastrar() {
         try {
-            manager = JPAUtil.conectarBanco();
-
+            // Abrir conexão uma vez
+            DAO.open();
             System.out.println("Cadastrando...");
 
             // Criar categorias de ingressos
-            manager.getTransaction().begin();
-            Categoria cat1 = new Categoria(1, 150.0);
-            Categoria cat2 = new Categoria(2, 250.0);
-            Categoria cat3 = new Categoria(3, 350.0);
-            
-            manager.persist(cat1);
-            manager.persist(cat2);
-            manager.persist(cat3);
-            manager.getTransaction().commit();
+            System.out.println("Criando categorias...");
+            Categoria cat1 = Fachada.cadastrarCategoria(1, 150.0);
+            Categoria cat2 = Fachada.cadastrarCategoria(2, 250.0);
+            Categoria cat3 = Fachada.cadastrarCategoria(3, 350.0);
+            System.out.println("Categorias criadas: " + cat1 + ", " + cat2 + ", " + cat3);
 
             // Criar jogos
-            manager.getTransaction().begin();
-            Jogo jogo1 = new Jogo(
-                    "15/10/2025 16:00",
+            System.out.println("Criando jogos...");
+            Jogo jogo1 = Fachada.cadastrarJogo(
+                    LocalDate.of(2025, 10, 15),
+                    LocalTime.of(16, 0),
                     "Estádio Maracanã",
                     "Flamengo",
                     "Fluminense"
             );
-            manager.persist(jogo1);
-            manager.getTransaction().commit();
 
-            manager.getTransaction().begin();
-            Jogo jogo2 = new Jogo(
-                    "22/10/2025 16:00",
+            Jogo jogo2 = Fachada.cadastrarJogo(
+                    LocalDate.of(2025, 10, 22),
+                    LocalTime.of(16, 0),
                     "Arena Itaquera",
                     "Corinthians",
                     "Palmeiras"
             );
-            manager.persist(jogo2);
-            manager.getTransaction().commit();
 
-            manager.getTransaction().begin();
-            Jogo jogo3 = new Jogo(
-                    "05/11/2025 18:30",
+            Jogo jogo3 = Fachada.cadastrarJogo(
+                    LocalDate.of(2025, 11, 5),
+                    LocalTime.of(18, 30),
                     "Mineirão",
                     "Cruzeiro",
                     "Atlético-MG"
             );
-            manager.persist(jogo3);
-            manager.getTransaction().commit();
+            System.out.println("Jogos criados com IDs: " + jogo1.getId() + ", " + jogo2.getId() + ", " + jogo3.getId());
 
-            // Criar ingressos
-            manager.getTransaction().begin();
-            Ingresso ingresso1 = new Ingresso(jogo1, cat1);
-            Ingresso ingresso2 = new Ingresso(jogo1, cat2);
-            Ingresso ingresso3 = new Ingresso(jogo1, cat3);
-            
-            manager.persist(ingresso1);
-            manager.persist(ingresso2);
-            manager.persist(ingresso3);
-            manager.getTransaction().commit();
+            // Criar ingressos para jogo1
+            System.out.println("Criando ingressos para o jogo 1...");
+            Ingresso ingresso1 = Fachada.cadastrarIngresso(jogo1.getId(), 1);
+            Ingresso ingresso2 = Fachada.cadastrarIngresso(jogo1.getId(), 2);
+            Ingresso ingresso3 = Fachada.cadastrarIngresso(jogo1.getId(), 3);
+            System.out.println("Ingressos do jogo 1: " + ingresso1.getCodigo() + ", " + ingresso2.getCodigo() + ", " + ingresso3.getCodigo());
 
-            manager.getTransaction().begin();
-            Ingresso ingresso4 = new Ingresso(jogo2, cat1);
-            Ingresso ingresso5 = new Ingresso(jogo2, cat2);
-            
-            manager.persist(ingresso4);
-            manager.persist(ingresso5);
-            manager.getTransaction().commit();
+            // Criar ingressos para jogo2
+            System.out.println("Criando ingressos para o jogo 2...");
+            Ingresso ingresso4 = Fachada.cadastrarIngresso(jogo2.getId(), 1);
+            Ingresso ingresso5 = Fachada.cadastrarIngresso(jogo2.getId(), 2);
+            System.out.println("Ingressos do jogo 2: " + ingresso4.getCodigo() + ", " + ingresso5.getCodigo());
 
-            manager.getTransaction().begin();
-            Ingresso ingresso6 = new Ingresso(jogo3, cat1);
-            Ingresso ingresso7 = new Ingresso(jogo3, cat3);
-            
-            manager.persist(ingresso6);
-            manager.persist(ingresso7);
-            manager.getTransaction().commit();
+            // Criar ingressos para jogo3
+            System.out.println("Criando ingressos para o jogo 3...");
+            Ingresso ingresso6 = Fachada.cadastrarIngresso(jogo3.getId(), 1);
+            Ingresso ingresso7 = Fachada.cadastrarIngresso(jogo3.getId(), 3);
+            System.out.println("Ingressos do jogo 3: " + ingresso6.getCodigo() + ", " + ingresso7.getCodigo());
 
             System.out.println("Cadastro concluído com sucesso!");
 
         } catch (Exception e) {
-            if (manager != null && manager.getTransaction().isActive()) {
-                manager.getTransaction().rollback();
-            }
-            System.out.println("Erro durante o cadastro: " + e.getMessage());
+            System.err.println("Erro durante o cadastro: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            if (manager != null) {
-                manager.close();
-            }
+            // Fechar conexão no final
+            DAO.close();
         }
-        
+
         System.out.println("Fim do cadastro");
     }
 
-    //=================================================
     public static void main(String[] args) {
         new Cadastrar();
     }
