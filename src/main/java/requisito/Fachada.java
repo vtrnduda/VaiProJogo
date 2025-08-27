@@ -121,4 +121,128 @@ public class Fachada {
         }
     }
 
+    // ============================================
+    // EXCLUSÕES
+    // ============================================
+
+    public static void removerIngresso(Long id) {
+        DAO.begin();
+        try {
+            Ingresso ingresso = ingressoDao.read(id);
+            if (ingresso == null) {
+                throw new RuntimeException("Ingresso não encontrado com id: " + id);
+            }
+
+            // Remover da lista bidirecional
+            Jogo jogo = ingresso.getJogo();
+            if (jogo != null) {
+                jogo.getListaIngressos().remove(ingresso);
+            }
+
+            ingressoDao.delete(ingresso);
+            DAO.commit();
+
+        } catch (Exception e) {
+            DAO.rollback();
+            throw new RuntimeException("Erro ao remover ingresso: " + e.getMessage());
+        }
+    }
+
+    public static void removerJogo(Long id) {
+        DAO.begin();
+        try {
+            Jogo jogo = jogoDao.read(id);
+            if (jogo == null) {
+                throw new RuntimeException("Jogo não encontrado com id: " + id);
+            }
+
+            // Verificar se tem ingressos
+            if (!jogo.getListaIngressos().isEmpty()) {
+                throw new RuntimeException("Não é possível remover jogo com ingressos cadastrados");
+            }
+
+            jogoDao.delete(jogo);
+            DAO.commit();
+
+        } catch (Exception e) {
+            DAO.rollback();
+            throw new RuntimeException("Erro ao remover jogo: " + e.getMessage());
+        }
+    }
+
+    public static void removerCategoria(Long id) {
+        DAO.begin();
+        try {
+            Categoria categoria = categoriaDao.read(id);
+            if (categoria == null) {
+                throw new RuntimeException("Categoria não encontrada com id: " + id);
+            }
+
+            // Verificar se tem ingressos
+            if (categoria.getIngressos() != null && !categoria.getIngressos().isEmpty()) {
+                throw new RuntimeException("Não é possível remover categoria com ingressos cadastrados");
+            }
+
+            categoriaDao.delete(categoria);
+            DAO.commit();
+
+        } catch (Exception e) {
+            DAO.rollback();
+            throw new RuntimeException("Erro ao remover categoria: " + e.getMessage());
+        }
+    }
+
+    // ============================================
+    // ALTERAÇÕES
+    // ============================================
+
+    public static Categoria alterarNumeroDaCategoria(int novoNumero, Long idCategoria) {
+        DAO.begin();
+        try {
+            Categoria categoria = categoriaDao.read(idCategoria);
+            if (categoria == null) {
+                throw new RuntimeException("Categoria não encontrada com id: " + idCategoria);
+            }
+
+            // Verificar se já existe outra categoria com esse número
+            Categoria existente = categoriaDao.readByNumero(novoNumero);
+            if (existente != null && !existente.getId().equals(idCategoria)) {
+                throw new RuntimeException("Já existe categoria com número: " + novoNumero);
+            }
+
+            categoria.setNumero(novoNumero);
+            categoriaDao.update(categoria);
+            DAO.commit();
+            return categoria;
+
+        } catch (Exception e) {
+            DAO.rollback();
+            throw new RuntimeException("Erro ao alterar número da categoria: " + e.getMessage());
+        }
+    }
+
+    public static Ingresso alterarCodigoDoIngresso(String novoCodigo, Long idIngresso) {
+        DAO.begin();
+        try {
+            Ingresso ingresso = ingressoDao.read(idIngresso);
+            if (ingresso == null) {
+                throw new RuntimeException("Ingresso não encontrado com id: " + idIngresso);
+            }
+
+            // Verificar se já existe ingresso com esse código
+            Ingresso existente = ingressoDao.readByCodigo(novoCodigo);
+            if (existente != null && !existente.getId().equals(idIngresso)) {
+                throw new RuntimeException("Já existe ingresso com código: " + novoCodigo);
+            }
+
+            ingresso.setCodigo(novoCodigo);
+            ingressoDao.update(ingresso);
+            DAO.commit();
+            return ingresso;
+
+        } catch (Exception e) {
+            DAO.rollback();
+            throw new RuntimeException("Erro ao alterar código do ingresso: " + e.getMessage());
+        }
+    }
 }
