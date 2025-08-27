@@ -111,13 +111,13 @@ public class Fachada {
         }
     }
 
-    public static Jogo cadastrarJogo(LocalDate data, LocalTime hora, String local, String timeA, String timeB) {
+    public static Jogo cadastrarJogo(LocalDate data, LocalTime hora, String local, String timeA, String timeB, byte[] fotoTimaA, byte[] fotoTimeB) {
         DAO.begin();
         try {
             // Combinar data e hora em string (adaptando ao modelo existente)
             String dataHora = data.toString() + " " + hora.toString();
 
-            Jogo jogo = new Jogo(dataHora, local, timeA, timeB);
+            Jogo jogo = new Jogo(dataHora, local, timeA, timeB, fotoTimaA, fotoTimeB);
             jogoDao.create(jogo);
             DAO.commit();
             return jogo;

@@ -2,6 +2,11 @@ package appswing;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -10,22 +15,30 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import model.Jogo;
@@ -39,12 +52,16 @@ public class TelaJogo {
     private JTextField textFieldLocal;
     private JTextField textFieldTimeA;
     private JTextField textFieldTimeB;
-    private JTextField textFieldFotoTimeA;
-    private JTextField textFieldFotoTimeB;
+    private JPanel panelFotoTimeA;
+    private JPanel panelFotoTimeB;
+    private JLabel labelFotoTimeAPath;
+    private JLabel labelFotoTimeBPath;
     private JButton buttonListar;
     private JButton buttonDeletar;
     private JButton buttonCadastrar;
     private JButton buttonLimpar;
+    private JButton buttonEscolherFotoA;
+    private JButton buttonEscolherFotoB;
     private JLabel labelMensagem;
     private JLabel labelDataHora;
     private JLabel labelLocal;
@@ -53,6 +70,9 @@ public class TelaJogo {
     private JLabel labelFotoTimeA;
     private JLabel labelFotoTimeB;
     private JLabel labelResultados;
+
+    private byte[] fotoTimeA;
+    private byte[] fotoTimeB;
 
     public TelaJogo() {
         initialize();
@@ -64,7 +84,7 @@ public class TelaJogo {
         frame.setModal(true);
         frame.setResizable(false);
         frame.setTitle("Jogo");
-        frame.setBounds(100, 100, 850, 550);
+        frame.setBounds(100, 100, 850, 580);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(null);
         frame.addWindowListener(new WindowAdapter() {
@@ -114,7 +134,7 @@ public class TelaJogo {
 
         labelMensagem = new JLabel("");
         labelMensagem.setForeground(Color.BLUE);
-        labelMensagem.setBounds(12, 500, 800, 14);
+        labelMensagem.setBounds(12, 530, 800, 14);
         frame.getContentPane().add(labelMensagem);
 
         labelResultados = new JLabel("resultados:");
@@ -209,35 +229,65 @@ public class TelaJogo {
         labelFotoTimeA.setBounds(21, 320, 80, 14);
         frame.getContentPane().add(labelFotoTimeA);
 
-        textFieldFotoTimeA = new JTextField();
-        textFieldFotoTimeA.setFont(new Font("Dialog", Font.PLAIN, 12));
-        textFieldFotoTimeA.setColumns(10);
-        textFieldFotoTimeA.setBounds(110, 317, 200, 20);
-        textFieldFotoTimeA.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                verificarCampos();
+        panelFotoTimeA = new JPanel();
+        panelFotoTimeA.setBounds(21, 340, 200, 60);
+        panelFotoTimeA.setBorder(BorderFactory.createDashedBorder(Color.GRAY));
+        panelFotoTimeA.setBackground(Color.WHITE);
+        panelFotoTimeA.setLayout(null);
+        configurarDropTarget(panelFotoTimeA, true);
+        frame.getContentPane().add(panelFotoTimeA);
+
+        labelFotoTimeAPath = new JLabel("Arraste uma imagem aqui");
+        labelFotoTimeAPath.setBounds(10, 5, 180, 50);
+        labelFotoTimeAPath.setFont(new Font("Tahoma", Font.PLAIN, 10));
+        labelFotoTimeAPath.setHorizontalAlignment(SwingConstants.CENTER);
+        labelFotoTimeAPath.setVerticalAlignment(SwingConstants.CENTER);
+        panelFotoTimeA.add(labelFotoTimeAPath);
+
+        buttonEscolherFotoA = new JButton("Escolher");
+        buttonEscolherFotoA.setBounds(230, 350, 80, 25);
+        buttonEscolherFotoA.setFont(new Font("Tahoma", Font.PLAIN, 10));
+        buttonEscolherFotoA.addActionListener(e -> {
+            try {
+                escolherImagem(true);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
         });
-        frame.getContentPane().add(textFieldFotoTimeA);
+        frame.getContentPane().add(buttonEscolherFotoA);
 
         labelFotoTimeB = new JLabel("Foto Time B:");
         labelFotoTimeB.setHorizontalAlignment(SwingConstants.LEFT);
         labelFotoTimeB.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        labelFotoTimeB.setBounds(330, 320, 80, 14);
+        labelFotoTimeB.setBounds(420, 320, 80, 14);
         frame.getContentPane().add(labelFotoTimeB);
 
-        textFieldFotoTimeB = new JTextField();
-        textFieldFotoTimeB.setFont(new Font("Dialog", Font.PLAIN, 12));
-        textFieldFotoTimeB.setColumns(10);
-        textFieldFotoTimeB.setBounds(420, 317, 200, 20);
-        textFieldFotoTimeB.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                verificarCampos();
+        panelFotoTimeB = new JPanel();
+        panelFotoTimeB.setBounds(420, 340, 200, 60);
+        panelFotoTimeB.setBorder(BorderFactory.createDashedBorder(Color.GRAY));
+        panelFotoTimeB.setBackground(Color.WHITE);
+        panelFotoTimeB.setLayout(null);
+        configurarDropTarget(panelFotoTimeB, false);
+        frame.getContentPane().add(panelFotoTimeB);
+
+        labelFotoTimeBPath = new JLabel("Arraste uma imagem aqui");
+        labelFotoTimeBPath.setBounds(10, 5, 180, 50);
+        labelFotoTimeBPath.setFont(new Font("Tahoma", Font.PLAIN, 10));
+        labelFotoTimeBPath.setHorizontalAlignment(SwingConstants.CENTER);
+        labelFotoTimeBPath.setVerticalAlignment(SwingConstants.CENTER);
+        panelFotoTimeB.add(labelFotoTimeBPath);
+
+        buttonEscolherFotoB = new JButton("Escolher");
+        buttonEscolherFotoB.setBounds(630, 350, 80, 25);
+        buttonEscolherFotoB.setFont(new Font("Tahoma", Font.PLAIN, 10));
+        buttonEscolherFotoB.addActionListener(e -> {
+            try {
+                escolherImagem(false);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
             }
         });
-        frame.getContentPane().add(textFieldFotoTimeB);
+        frame.getContentPane().add(buttonEscolherFotoB);
 
         buttonCadastrar = new JButton("Cadastrar");
         buttonCadastrar.addActionListener(new ActionListener() {
@@ -247,8 +297,6 @@ public class TelaJogo {
                     String local = textFieldLocal.getText();
                     String timeA = textFieldTimeA.getText();
                     String timeB = textFieldTimeB.getText();
-                    String fotoTimeA = textFieldFotoTimeA.getText();
-                    String fotoTimeB = textFieldFotoTimeB.getText();
 
                     String[] partesDataHora = dataHoraTexto.split(" ");
                     if (partesDataHora.length != 2) {
@@ -261,7 +309,7 @@ public class TelaJogo {
                     LocalDate data = LocalDate.parse(partesDataHora[0], formatoData);
                     LocalTime hora = LocalTime.parse(partesDataHora[1], formatoHora);
 
-                    Fachada.cadastrarJogo(data, hora, local, timeA, timeB);
+                    Fachada.cadastrarJogo(data, hora, local, timeA, timeB, fotoTimeA, fotoTimeB);
                     labelMensagem.setText("Jogo cadastrado com sucesso");
                     listagem();
                     limparTudo();
@@ -273,7 +321,7 @@ public class TelaJogo {
             }
         });
         buttonCadastrar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        buttonCadastrar.setBounds(21, 360, 120, 23);
+        buttonCadastrar.setBounds(21, 420, 120, 23);
         buttonCadastrar.setEnabled(false);
         frame.getContentPane().add(buttonCadastrar);
 
@@ -297,7 +345,7 @@ public class TelaJogo {
             }
         });
         buttonDeletar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        buttonDeletar.setBounds(160, 360, 170, 23);
+        buttonDeletar.setBounds(160, 420, 170, 23);
         buttonDeletar.setEnabled(false);
         frame.getContentPane().add(buttonDeletar);
 
@@ -309,8 +357,88 @@ public class TelaJogo {
             }
         });
         buttonLimpar.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        buttonLimpar.setBounds(350, 360, 120, 23);
+        buttonLimpar.setBounds(350, 420, 120, 23);
         frame.getContentPane().add(buttonLimpar);
+    }
+
+    private void configurarDropTarget(JPanel panel, boolean isTimeA) {
+        new DropTarget(panel, new java.awt.dnd.DropTargetListener() {
+            @Override
+            public void dragEnter(java.awt.dnd.DropTargetDragEvent dtde) {
+                panel.setBackground(new Color(230, 230, 255));
+            }
+
+            @Override
+            public void dragOver(java.awt.dnd.DropTargetDragEvent dtde) {}
+
+            @Override
+            public void dropActionChanged(java.awt.dnd.DropTargetDragEvent dtde) {}
+
+            @Override
+            public void dragExit(java.awt.dnd.DropTargetEvent dte) {
+                panel.setBackground(Color.WHITE);
+            }
+
+            @Override
+            public void drop(DropTargetDropEvent dtde) {
+                try {
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                    Transferable transferable = dtde.getTransferable();
+
+                    if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                        List<File> files = (List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor);
+
+                        if (!files.isEmpty()) {
+                            File file = files.get(0);
+                            String fileName = file.getName().toLowerCase();
+
+                            if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") ||
+                                    fileName.endsWith(".png") || fileName.endsWith(".gif")) {
+
+                                if (isTimeA) {
+                                    String caminhoFotoTimeA = file.getAbsolutePath();
+                                    fotoTimeA = Files.readAllBytes(Paths.get(caminhoFotoTimeA));
+                                    labelFotoTimeAPath.setText(file.getName());
+                                } else {
+                                    String caminhoFotoTimeB = file.getAbsolutePath();
+                                    fotoTimeB = Files.readAllBytes(Paths.get(caminhoFotoTimeB));
+                                    labelFotoTimeBPath.setText(file.getName());
+                                }
+                                verificarCampos();
+                            } else {
+                                labelMensagem.setText("Por favor, selecione um arquivo de imagem válido");
+                            }
+                        }
+                    }
+                    panel.setBackground(Color.WHITE);
+                } catch (Exception e) {
+                    labelMensagem.setText("Erro ao processar arquivo: " + e.getMessage());
+                    panel.setBackground(Color.WHITE);
+                }
+            }
+        });
+    }
+
+    private void escolherImagem(boolean isTimeA) throws IOException {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "Arquivos de Imagem", "jpg", "jpeg", "png", "gif");
+        fileChooser.setFileFilter(filter);
+
+        if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+
+            if (isTimeA) {
+                String caminhoFotoTimeA = file.getAbsolutePath();
+                fotoTimeA = Files.readAllBytes(Paths.get(caminhoFotoTimeA));
+                labelFotoTimeAPath.setText(file.getName());
+            } else {
+                String caminhoFotoTimeB = file.getAbsolutePath();
+                fotoTimeB = Files.readAllBytes(Paths.get(caminhoFotoTimeB));
+                labelFotoTimeBPath.setText(file.getName());
+            }
+            verificarCampos();
+        }
     }
 
     public void listagem() {
@@ -325,8 +453,6 @@ public class TelaJogo {
             model.addColumn("local");
             model.addColumn("timeA");
             model.addColumn("timeB");
-            model.addColumn("fotoTimeA");
-            model.addColumn("fotoTimeB");
 
             for (Jogo jogo : lista) {
                 model.addRow(new Object[] {
@@ -334,9 +460,7 @@ public class TelaJogo {
                         jogo.getDataHora(),
                         jogo.getLocal(),
                         jogo.getTimeA(),
-                        jogo.getTimeB(),
-//                        jogo.getFotoTimeA(),
-//                        jogo.getFotoTimeB()
+                        jogo.getTimeB()
                 });
             }
 
@@ -355,8 +479,12 @@ public class TelaJogo {
         textFieldLocal.setText("");
         textFieldTimeA.setText("");
         textFieldTimeB.setText("");
-        textFieldFotoTimeA.setText("");
-        textFieldFotoTimeB.setText("");
+
+        fotoTimeA = null;
+        fotoTimeB = null;
+        labelFotoTimeAPath.setText("Arraste uma imagem aqui");
+        labelFotoTimeBPath.setText("Arraste uma imagem aqui");
+
         table.clearSelection();
         labelResultados.setText("resultados:");
         buttonDeletar.setEnabled(false);
@@ -368,8 +496,8 @@ public class TelaJogo {
                 !textFieldLocal.getText().isEmpty() &&
                 !textFieldTimeA.getText().isEmpty() &&
                 !textFieldTimeB.getText().isEmpty() &&
-                !textFieldFotoTimeA.getText().isEmpty() &&
-                !textFieldFotoTimeB.getText().isEmpty();
+                fotoTimeA != null && fotoTimeA.length > 0 &&
+                fotoTimeB != null && fotoTimeB.length > 0;
 
         buttonCadastrar.setEnabled(todosCamposPreenchidos);
     }
