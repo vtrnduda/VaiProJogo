@@ -238,7 +238,7 @@ public class Fachada {
 
             // Verificar se já existe ingresso com esse código
             Ingresso existente = ingressoDao.readByCodigo(novoCodigo);
-            if (existente != null && !existente.getId().equals(idIngresso)) {
+            if (existente != null) {
                 throw new RuntimeException("Já existe ingresso com código: " + novoCodigo);
             }
 
