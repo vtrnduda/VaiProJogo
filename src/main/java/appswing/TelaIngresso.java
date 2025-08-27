@@ -4,14 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -46,11 +39,14 @@ public class TelaIngresso {
     private JScrollPane scrollPaneJogos;
     private JScrollPane scrollPaneCategorias;
     private JTextField textFieldCodigo;
+    private JTextField textFieldCodigoCategoria;
+
     private JButton buttonListar;
     private JButton buttonDeletar;
     private JButton buttonCadastrar;
     private JButton buttonLimpar;
     private JButton buttonAlterarCodigo;
+    private JButton buttonAlterarCategoria;
     private JLabel labelMensagem;
     private JLabel labelCodigo;
     private JLabel labelResultadosIngressos;
@@ -111,6 +107,7 @@ public class TelaIngresso {
                     textFieldCodigo.setText(codigo);
                     buttonDeletar.setEnabled(true);
                     buttonAlterarCodigo.setEnabled(true);
+                    verificarSelecaoAlterarCategoria(); // Adicione esta linha
                 }
             }
         });
@@ -322,6 +319,82 @@ public class TelaIngresso {
         labelMensagem.setForeground(Color.BLUE);
         labelMensagem.setBounds(21, 640, 1150, 14);
         frame.getContentPane().add(labelMensagem);
+
+        // Label e campo para digitar o código da categoria
+        JLabel labelCodigoCategoria = new JLabel("Código Categoria:");
+        labelCodigoCategoria.setHorizontalAlignment(SwingConstants.LEFT);
+        labelCodigoCategoria.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        labelCodigoCategoria.setBounds(420, 460, 120, 14);
+        frame.getContentPane().add(labelCodigoCategoria);
+
+        textFieldCodigoCategoria = new JTextField();
+        textFieldCodigoCategoria.setFont(new Font("Dialog", Font.PLAIN, 12));
+        textFieldCodigoCategoria.setColumns(10);
+        textFieldCodigoCategoria.setBounds(540, 457, 120, 20);
+        frame.getContentPane().add(textFieldCodigoCategoria);
+
+        // atualiza categoriaSelecionadaNumero quando o usuário digita (ou limpa)
+        textFieldCodigoCategoria.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String txt = textFieldCodigoCategoria.getText().trim();
+                if (txt.isEmpty()) {
+                    categoriaSelecionadaNumero = null;
+                } else {
+                    try {
+                        categoriaSelecionadaNumero = Integer.valueOf(txt);
+                    } catch (NumberFormatException ex) {
+                        categoriaSelecionadaNumero = null; // inválido enquanto digita
+                    }
+                }
+                verificarSelecoesCadastro();
+                verificarSelecaoAlterarCategoria();
+            }
+        });
+
+        // Botão Alterar Categoria
+        buttonAlterarCategoria = new JButton("Alterar Categoria");
+        buttonAlterarCategoria.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (tableIngressos.getSelectedRow() >= 0) {
+                        String codigoIngresso = (String) tableIngressos.getValueAt(tableIngressos.getSelectedRow(), 1);
+
+                        // Prioriza o valor digitado; se vazio, usa a seleção (categoriaSelecionadaNumero)
+                        Long novaCategoriaId = null;
+                        String txt = textFieldCodigoCategoria.getText().trim();
+                        if (!txt.isEmpty()) {
+                            try {
+                                novaCategoriaId = Long.valueOf(txt);
+                            } catch (NumberFormatException nfe) {
+                                labelMensagem.setText("Código da categoria deve ser um número.");
+                                return;
+                            }
+                        } else if (categoriaSelecionadaNumero != null) {
+                            novaCategoriaId = Long.valueOf(categoriaSelecionadaNumero);
+                        } else {
+                            labelMensagem.setText("Informe ou selecione a categoria.");
+                            return;
+                        }
+
+                        Fachada.alterarCategoriaDoIngresso(novaCategoriaId, codigoIngresso);
+                        labelMensagem.setText("Categoria do ingresso alterada com sucesso");
+                        listagem();
+                        limparTudo();
+                    } else {
+                        labelMensagem.setText("Nenhum ingresso selecionado");
+                    }
+                } catch (Exception ex) {
+                    labelMensagem.setText(ex.getMessage());
+                }
+            }
+        });
+        buttonAlterarCategoria.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        buttonAlterarCategoria.setBounds(700, 456, 140, 23);
+        buttonAlterarCategoria.setEnabled(false);
+        frame.getContentPane().add(buttonAlterarCategoria);
+
+
     }
 
     private ImageIcon criarIconeImagem(byte[] dados) {
@@ -470,8 +543,10 @@ public class TelaIngresso {
         }
     }
 
+
     private void limparTudo() {
         textFieldCodigo.setText("");
+        textFieldCodigoCategoria.setText(""); // Adicione esta linha
 
         tableIngressos.clearSelection();
         tableJogos.clearSelection();
@@ -483,6 +558,7 @@ public class TelaIngresso {
         buttonDeletar.setEnabled(false);
         buttonAlterarCodigo.setEnabled(false);
         buttonCadastrar.setEnabled(false);
+        buttonAlterarCategoria.setEnabled(false); // Adicione esta linha
 
         labelResultadosIngressos.setText("Ingressos:");
         labelResultadosJogos.setText("Jogos:");
@@ -492,5 +568,11 @@ public class TelaIngresso {
     private void verificarSelecoesCadastro() {
         boolean podesCadastrar = jogoSelecionadoId != null && categoriaSelecionadaNumero != null;
         buttonCadastrar.setEnabled(podesCadastrar);
+    }
+
+    private void verificarSelecaoAlterarCategoria() {
+        // Só habilita se tem ingresso selecionado
+        boolean temIngressoSelecionado = tableIngressos.getSelectedRow() >= 0;
+        buttonAlterarCategoria.setEnabled(temIngressoSelecionado);
     }
 }

@@ -1,52 +1,29 @@
 package appconsole;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import model.Categoria;
+import daojpa.DAO;
 import model.Ingresso;
-//import util.JPAUtil;
+import requisito.Fachada;
+
 
 public class Alterar {
 
-    private EntityManager manager;
 
     public Alterar() {
-//        manager = JPAUtil.conectarBanco();
-        String codigoIngresso = "FLAFLU328855";
-        int numeroCategoria = 3;
+
+        String codigoIngresso = "FLAFLU173977";
+        Long numeroCategoria = 3L;
 
         try {
 
-            manager.getTransaction().begin();
+            DAO.open();
+            System.out.println("Alterando Ingresso" + codigoIngresso);
+            Fachada.alterarCategoriaDoIngresso(numeroCategoria, codigoIngresso);
 
-
-            Ingresso ingresso = manager.createQuery(
-                            "SELECT I FROM Ingresso I WHERE I.codigo = :codigo", Ingresso.class)
-                    .setParameter("codigo", codigoIngresso)
-                    .getSingleResult();
-
-
-            Categoria categoria = manager.createQuery(
-                            "SELECT C FROM Categoria C WHERE C.numero = :numero", Categoria.class)
-                    .setParameter("numero", numeroCategoria)
-                    .getSingleResult();
-
-            System.out.println("Antes da alteracao" + ingresso);
-
-            ingresso.setCategoria(categoria);
-            manager.merge(ingresso);
-            manager.getTransaction().commit();
-
-            System.out.println("Depois da alteracao" + ingresso);
-
-
-        } catch (NoResultException e) {
-            System.out.println("Ingresso ou Categoria não encontrado(a).");
         } catch (Exception e) {
-            manager.getTransaction().rollback();
+            System.err.println("Erro durante a alteração: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            manager.close();
+            DAO.close();
 
         }
     }

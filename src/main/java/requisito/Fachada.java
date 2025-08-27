@@ -228,6 +228,35 @@ public class Fachada {
         }
     }
 
+    public static Ingresso alterarCategoriaDoIngresso(Long novaCategoria, String codigoIngresso) {
+        DAO.begin();
+        try {
+            Ingresso ingresso = ingressoDao.readByCodigo(codigoIngresso);
+            if (codigoIngresso == null) {
+                throw new RuntimeException("Ingresso não encontrada com id: " + codigoIngresso);
+            }
+            Categoria categoria = categoriaDao.readByNumero(novaCategoria.intValue());
+            if (categoria == null) {
+                throw new RuntimeException("Categoria não existente com id: " + novaCategoria);
+            }
+
+            System.out.println("Ingresso antes: " + ingresso.getCategoria());
+            System.out.println();
+
+            ingresso.setCategoria(categoria);
+            ingressoDao.update(ingresso);
+            DAO.commit();
+
+            System.out.println("Ingresso depois: " + ingresso.getCategoria());
+
+            return ingresso;
+
+        } catch (Exception e) {
+            DAO.rollback();
+            throw new RuntimeException("Erro ao alterar categoria do ingresso: " + e.getMessage());
+        }
+    }
+
     public static Ingresso alterarCodigoDoIngresso(String novoCodigo, Long idIngresso) {
         DAO.begin();
         try {
