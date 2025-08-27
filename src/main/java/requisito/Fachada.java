@@ -196,29 +196,36 @@ public class Fachada {
     // ALTERAÇÕES
     // ============================================
 
-    public static Categoria alterarNumeroDaCategoria(int novoNumero, Long idCategoria) {
+    public static Ingresso alterarCategoriaDoIngresso(Long novaCategoria, String codigoIngresso) {
         DAO.begin();
         try {
-            Categoria categoria = categoriaDao.read(idCategoria);
+            Ingresso ingresso = ingressoDao.readByCodigo(codigoIngresso);
+            if (codigoIngresso == null) {
+                throw new RuntimeException("Ingresso não encontrada com id: " + codigoIngresso);
+            }
+            Categoria categoria = categoriaDao.read(novaCategoria);
             if (categoria == null) {
-                throw new RuntimeException("Categoria não encontrada com id: " + idCategoria);
+                throw new RuntimeException("Categoria não existente com id: " + novaCategoria);
             }
 
-            // Verificar se já existe outra categoria com esse número
-            Categoria existente = categoriaDao.readByNumero(novoNumero);
-            if (existente != null && !existente.getId().equals(idCategoria)) {
-                throw new RuntimeException("Já existe categoria com número: " + novoNumero);
-            }
+            System.out.println("Ingresso antes: " + ingresso.getCategoria());
+            System.out.println();
 
-            categoria.setNumero(novoNumero);
-            categoriaDao.update(categoria);
+            ingresso.setCategoria(categoria);
+            ingressoDao.update(ingresso);
             DAO.commit();
-            return categoria;
+
+            System.out.println("Ingresso depois: " + ingresso.getCategoria());
+
+            return ingresso;
 
         } catch (Exception e) {
             DAO.rollback();
-            throw new RuntimeException("Erro ao alterar número da categoria: " + e.getMessage());
+            throw new RuntimeException("Erro ao alterar categoria do ingresso: " + e.getMessage());
         }
+
+
+
     }
 
     public static Ingresso alterarCodigoDoIngresso(String novoCodigo, Long idIngresso) {
