@@ -1,7 +1,9 @@
 package appswing;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -15,6 +17,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,7 +29,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -39,6 +45,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import model.Jogo;
@@ -84,7 +91,7 @@ public class TelaJogo {
         frame.setModal(true);
         frame.setResizable(false);
         frame.setTitle("Jogo");
-        frame.setBounds(100, 100, 850, 580);
+        frame.setBounds(100, 100, 950, 580);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.getContentPane().setLayout(null);
         frame.addWindowListener(new WindowAdapter() {
@@ -101,7 +108,7 @@ public class TelaJogo {
         });
 
         scrollPane = new JScrollPane();
-        scrollPane.setBounds(21, 43, 790, 148);
+        scrollPane.setBounds(21, 43, 890, 148);
         frame.getContentPane().add(scrollPane);
 
         table = new JTable() {
@@ -126,6 +133,7 @@ public class TelaJogo {
         table.setFillsViewportHeight(true);
         table.setRowSelectionAllowed(true);
         table.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        table.setRowHeight(50);
         scrollPane.setViewportView(table);
         table.setBorder(new LineBorder(new Color(0, 0, 0)));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -148,7 +156,7 @@ public class TelaJogo {
                 listagem();
             }
         });
-        buttonListar.setBounds(375, 11, 89, 23);
+        buttonListar.setBounds(425, 11, 89, 23);
         frame.getContentPane().add(buttonListar);
 
         labelDataHora = new JLabel("Data/Hora:");
@@ -441,6 +449,19 @@ public class TelaJogo {
         }
     }
 
+    private ImageIcon criarIconeImagem(byte[] dados) {
+        try {
+            if (dados != null && dados.length > 0) {
+                BufferedImage imagem = ImageIO.read(new ByteArrayInputStream(dados));
+                Image imagemRedimensionada = imagem.getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+                return new ImageIcon(imagemRedimensionada);
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return null;
+    }
+
     public void listagem() {
         try {
             List<Jogo> lista = Fachada.listarJogos();
@@ -452,21 +473,60 @@ public class TelaJogo {
             model.addColumn("dataHora");
             model.addColumn("local");
             model.addColumn("timeA");
+            model.addColumn("fotoTimeA");
             model.addColumn("timeB");
+            model.addColumn("fotoTimeB");
 
             for (Jogo jogo : lista) {
+                ImageIcon iconTimeA = criarIconeImagem(jogo.getFotoTimeA());
+                ImageIcon iconTimeB = criarIconeImagem(jogo.getFotoTimeB());
+
                 model.addRow(new Object[] {
                         jogo.getId(),
                         jogo.getDataHora(),
                         jogo.getLocal(),
                         jogo.getTimeA(),
-                        jogo.getTimeB()
+                        iconTimeA != null ? iconTimeA : "Sem foto",
+                        jogo.getTimeB(),
+                        iconTimeB != null ? iconTimeB : "Sem foto"
                 });
             }
 
             table.getColumnModel().getColumn(0).setMinWidth(0);
             table.getColumnModel().getColumn(0).setMaxWidth(0);
             table.getColumnModel().getColumn(0).setWidth(0);
+
+            table.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                               boolean hasFocus, int row, int column) {
+                    if (value instanceof ImageIcon) {
+                        setIcon((ImageIcon) value);
+                        setText("");
+                    } else {
+                        setIcon(null);
+                        setText(value != null ? value.toString() : "");
+                    }
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                    return this;
+                }
+            });
+
+            table.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                               boolean hasFocus, int row, int column) {
+                    if (value instanceof ImageIcon) {
+                        setIcon((ImageIcon) value);
+                        setText("");
+                    } else {
+                        setIcon(null);
+                        setText(value != null ? value.toString() : "");
+                    }
+                    setHorizontalAlignment(SwingConstants.CENTER);
+                    return this;
+                }
+            });
 
             labelResultados.setText("resultados: " + lista.size() + " jogos");
         } catch (Exception erro) {
