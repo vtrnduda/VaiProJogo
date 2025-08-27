@@ -324,13 +324,13 @@ public class TelaIngresso {
         JLabel labelCodigoCategoria = new JLabel("Código Categoria:");
         labelCodigoCategoria.setHorizontalAlignment(SwingConstants.LEFT);
         labelCodigoCategoria.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        labelCodigoCategoria.setBounds(420, 460, 120, 14);
+        labelCodigoCategoria.setBounds(494, 460, 120, 14);
         frame.getContentPane().add(labelCodigoCategoria);
 
         textFieldCodigoCategoria = new JTextField();
         textFieldCodigoCategoria.setFont(new Font("Dialog", Font.PLAIN, 12));
         textFieldCodigoCategoria.setColumns(10);
-        textFieldCodigoCategoria.setBounds(540, 457, 120, 20);
+        textFieldCodigoCategoria.setBounds(621, 458, 120, 20);
         frame.getContentPane().add(textFieldCodigoCategoria);
 
         // atualiza categoriaSelecionadaNumero quando o usuário digita (ou limpa)
@@ -390,7 +390,7 @@ public class TelaIngresso {
             }
         });
         buttonAlterarCategoria.setFont(new Font("Tahoma", Font.PLAIN, 12));
-        buttonAlterarCategoria.setBounds(700, 456, 140, 23);
+        buttonAlterarCategoria.setBounds(753, 456, 140, 23);
         buttonAlterarCategoria.setEnabled(false);
         frame.getContentPane().add(buttonAlterarCategoria);
 
