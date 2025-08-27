@@ -32,7 +32,7 @@ public class Util {
                     propriedades.setProperty("jakarta.persistence.jdbc.url",
                             "jdbc:postgresql://" + ip + ":5432/" + banco);
                     propriedades.setProperty("jakarta.persistence.jdbc.user", "postgres");
-                    propriedades.setProperty("jakarta.persistence.jdbc.password", "test");
+                    propriedades.setProperty("jakarta.persistence.jdbc.password", "1307");
                 }
                 if (sgbd.equals("mysql")) {
                     propriedades.setProperty("jakarta.persistence.jdbc.driver", "com.mysql.cj.jdbc.Driver");
