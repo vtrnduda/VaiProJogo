@@ -17,28 +17,40 @@ public class Util {
             try {
                 System.out.println("Carregando configuração do banco...");
 
-                Properties dados = new Properties();
-                dados.load(Util.class.getResourceAsStream("/daojpa/util.properties"));
-                String sgbd = dados.getProperty("sgbd");
-                String banco = dados.getProperty("banco");
-                String ip = dados.getProperty("ipatual");
+                //Properties dados = new Properties();
+                //dados.load(Util.class.getResourceAsStream("/daojpa/util.properties"));
+                //String sgbd = dados.getProperty("sgbd");
+                //String banco = dados.getProperty("banco");
+                //String ip = dados.getProperty("ipatual");
 
-                System.out.println("SGBD: " + sgbd);
-                System.out.println("Banco: " + banco);
-                System.out.println("IP: " + ip);
+                Dotenv dotenv = Dotenv.load();
+                String sgbd = dotenv.get("SGBD");
 
                 Properties propriedades = new Properties();
                 if (sgbd.equals("postgresql")) {
-                    Dotenv dotenv = Dotenv.load();
+                    String banco = dotenv.get("DB_NAME");
+                    String ip = dotenv.get("DB_HOST");
+                    String port = dotenv.get("DB_PORT");
                     String user = dotenv.get("DB_USER");
                     String password = dotenv.get("DB_PASSWORD");
+
+                    System.out.println("SGBD: " + sgbd);
+                    System.out.println("Banco: " + banco);
+                    System.out.println("IP: " + ip);
+
                     propriedades.setProperty("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
                     propriedades.setProperty("jakarta.persistence.jdbc.url",
-                            "jdbc:postgresql://" + ip + ":5432/" + banco);
+                            "jdbc:postgresql://" + ip + ":" + port + "/" + banco);
                     propriedades.setProperty("jakarta.persistence.jdbc.user", user);
                     propriedades.setProperty("jakarta.persistence.jdbc.password", password);
                 }
                 if (sgbd.equals("mysql")) {
+                    String banco = dotenv.get("DB_NAME");
+                    String ip = dotenv.get("DB_HOST");
+                    String port = dotenv.get("DB_PORT");
+                    String user = dotenv.get("DB_USER");
+                    String password = dotenv.get("DB_PASSWORD");
+
                     propriedades.setProperty("jakarta.persistence.jdbc.driver", "com.mysql.cj.jdbc.Driver");
                     propriedades.setProperty("jakarta.persistence.jdbc.url",
                             "jdbc:mysql://" + ip + ":3306/" + banco + "?createDatabaseIfNotExist=true");
