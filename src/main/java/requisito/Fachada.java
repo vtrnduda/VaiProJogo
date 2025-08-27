@@ -20,6 +20,13 @@ public class Fachada {
     private static JogoDAO jogoDao = new JogoDAO();
     private static IngressoDAO ingressoDao = new IngressoDAO();
 
+    public static void inicializar(){
+        DAO.open();
+    }
+    public static void finalizar(){
+        DAO.close();
+    }
+
     // ============================================
     // LISTAGEM
     // ============================================
