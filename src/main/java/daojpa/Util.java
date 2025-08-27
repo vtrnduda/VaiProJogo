@@ -2,6 +2,7 @@ package daojpa;
 
 import java.util.Properties;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -28,11 +29,14 @@ public class Util {
 
                 Properties propriedades = new Properties();
                 if (sgbd.equals("postgresql")) {
+                    Dotenv dotenv = Dotenv.load();
+                    String user = dotenv.get("DB_USER");
+                    String password = dotenv.get("DB_PASSWORD");
                     propriedades.setProperty("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
                     propriedades.setProperty("jakarta.persistence.jdbc.url",
                             "jdbc:postgresql://" + ip + ":5432/" + banco);
-                    propriedades.setProperty("jakarta.persistence.jdbc.user", "postgres");
-                    propriedades.setProperty("jakarta.persistence.jdbc.password", "1307");
+                    propriedades.setProperty("jakarta.persistence.jdbc.user", user);
+                    propriedades.setProperty("jakarta.persistence.jdbc.password", password);
                 }
                 if (sgbd.equals("mysql")) {
                     propriedades.setProperty("jakarta.persistence.jdbc.driver", "com.mysql.cj.jdbc.Driver");
